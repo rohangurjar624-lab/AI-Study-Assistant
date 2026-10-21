@@ -56,6 +56,19 @@ def create_app(config_name=None):
     app.register_blueprint(flashcards_bp)
     app.register_blueprint(dashboard_bp)
 
+    # Auto-initialize database tables and demo seed if empty
+    with app.app_context():
+        try:
+            db.create_all()
+            if not app.config.get("TESTING"):
+                demo_check = User.query.filter_by(email="demo@example.com").first()
+                if demo_check is None:
+                    from seed import seed_database
+                    seed_database()
+        except Exception as e:
+            # Table creation or seed fallback
+            pass
+
     # Core Routes
     @app.route("/")
     def home():
