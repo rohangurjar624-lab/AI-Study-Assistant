@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Review Due Flashcards | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="flashcard-stage">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <a href="{{ url_for('flashcards.index') }}" style="font-size: 0.9rem; color: var(--text-muted);">&larr; Back to all flashcards</a>
+        {% if card %}
+            <span class="badge badge-info">{{ total_due }} card(s) remaining today</span>
+        {% endif %}
+    </div>
+
+    {% if card %}
+        <!-- Flashcard Interface -->
+        <div class="flashcard-box" id="flashcard-box">
+            <div style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">
+                Term / Concept
+            </div>
+            <div class="flashcard-term">
+                {{ card.front }}
+            </div>
+
+            <!-- Answer Section (Initially hidden) -->
+            <div id="flashcard-answer-section" style="display: none; width: 100%;">
+                <div class="flashcard-answer">
+                    {{ card.back }}
+                </div>
+            </div>
+
+            <button type="button" id="reveal-answer-btn" class="btn btn-secondary" style="margin-top: 24px;">
+                Show Answer (or press Space)
+            </button>
+        </div>
+
+        <!-- Grade Buttons (Shown after reveal) -->
+        <div id="grade-buttons-section" style="display: none;">
+            <p style="text-align: center; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 10px;">
+                Rate your recall quality (Keys 0 to 5):
+            </p>
+
+            <form method="POST" action="{{ url_for('flashcards.review') }}">
+                {{ form.hidden_tag() }}
+                <input type="hidden" name="card_id" value="{{ card.id }}">
+
+                <div class="srs-grade-buttons">
+                    <button type="submit" name="grade" value="0" class="btn-grade btn-grade-0">
+                        <strong>0</strong>
+                        <span>Blackout</span>
+                    </button>
+                    <button type="submit" name="grade" value="1" class="btn-grade btn-grade-1">
+                        <strong>1</strong>
+                        <span>Wrong</span>
+                    </button>
+                    <button type="submit" name="grade" value="2" class="btn-grade btn-grade-2">
+                        <strong>2</strong>
+                        <span>Almost</span>
+                    </button>
+                    <button type="submit" name="grade" value="3" class="btn-grade btn-grade-3">
+                        <strong>3</strong>
+                        <span>Difficult</span>
+                    </button>
+                    <button type="submit" name="grade" value="4" class="btn-grade btn-grade-4">
+                        <strong>4</strong>
+                        <span>Good</span>
+                    </button>
+                    <button type="submit" name="grade" value="5" class="btn-grade btn-grade-5">
+                        <strong>5</strong>
+                        <span>Easy</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+
+    {% else %}
+        <!-- Empty / Complete State -->
+        <div class="card" style="text-align: center; padding: 48px 24px;">
+            <div style="font-size: 3.5rem; margin-bottom: 12px;">🎉</div>
+            <h2 style="font-size: 1.8rem; margin-bottom: 8px;">All Caught Up!</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px; max-width: 440px; margin-left: auto; margin-right: auto;">
+                You've reviewed every flashcard due today! Consistent daily practice trains your memory for lifelong retention.
+            </p>
+            <div style="display: flex; justify-content: center; gap: 12px;">
+                <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-primary">Go to Dashboard</a>
+                <a href="{{ url_for('notes.index') }}" class="btn btn-secondary">Study More Notes</a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/flashcards.js') }}"></script>
+{% endblock %}

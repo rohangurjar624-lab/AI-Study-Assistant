@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 24px;">
+    <h1 style="font-size: 2rem;">Learning Progress & Analytics</h1>
+    <p style="color: var(--text-muted); font-size: 0.95rem;">Track test scores, weak topic areas, and daily study momentum</p>
+</div>
+
+<!-- 5 Top Stat Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ total_notes }}</div>
+        <div class="stat-label">Total Notes</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ total_quizzes }}</div>
+        <div class="stat-label">Quizzes Taken</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ avg_score }}%</div>
+        <div class="stat-label">Average Score</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ best_score }}%</div>
+        <div class="stat-label">Best Score</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value" style="color: #f59e0b;">{{ streak }} 🔥</div>
+        <div class="stat-label">Day Streak</div>
+    </div>
+</div>
+
+<!-- Flashcards Due Today Callout Card -->
+<div class="card" style="border-left: 4px solid var(--accent-blue); padding: 18px 24px; margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 14px;">
+            <div style="font-size: 2rem;">🗂️</div>
+            <div>
+                <h3 style="font-size: 1.15rem; margin-bottom: 2px;">Flashcards Due Today</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    {% if due_flashcards > 0 %}
+                        You have <strong>{{ due_flashcards }}</strong> spaced repetition card(s) ready for review.
+                    {% else %}
+                        All caught up! No cards currently due for review.
+                    {% endif %}
+                </p>
+            </div>
+        </div>
+
+        {% if due_flashcards > 0 %}
+            <a href="{{ url_for('flashcards.review') }}" class="btn btn-primary">Start Review Now &rarr;</a>
+        {% else %}
+            <a href="{{ url_for('flashcards.index') }}" class="btn btn-secondary">View Deck</a>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Two Chart.js Visualizations -->
+<div class="charts-grid">
+    <div class="chart-container">
+        <h3 style="font-size: 1.05rem; margin-bottom: 12px;">📈 Score Percentage Over Time (Last 20 Attempts)</h3>
+        <div style="height: 240px; position: relative;">
+            <canvas id="scoreHistoryChart"></canvas>
+        </div>
+    </div>
+
+    <div class="chart-container">
+        <h3 style="font-size: 1.05rem; margin-bottom: 12px;">📊 Average Score Per Study Note</h3>
+        <div style="height: 240px; position: relative;">
+            <canvas id="notePerformanceChart"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Two-Column Section: Weak Topics & Recent Notes -->
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+    <!-- Weak Topics Card -->
+    <div class="card" style="margin-bottom: 0;">
+        <h2 class="card-title">⚠️ Priority Review Topics (Lowest Accuracy)</h2>
+        {% if weak_topics %}
+            <div style="display: flex; flex-direction: column; gap: 14px;">
+                {% for item in weak_topics %}
+                    <div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.9rem; margin-bottom: 4px;">
+                            <span style="font-weight: 600;">{{ item.topic }}</span>
+                            <span style="color: {% if item.accuracy < 50 %}#ef4444{% elif item.accuracy < 75 %}#f59e0b{% else %}#10b981{% endif %}; font-weight: 700;">
+                                {{ item.accuracy }}% ({{ item.correct }}/{{ item.total }})
+                            </span>
+                        </div>
+                        <div style="width: 100%; height: 8px; background: var(--bg-input); border-radius: 4px; overflow: hidden;">
+                            <div style="width: {{ item.accuracy }}%; height: 100%; background: {% if item.accuracy < 50 %}#ef4444{% elif item.accuracy < 75 %}#f59e0b{% else %}#10b981{% endif %};"></div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 24px 10px; color: var(--text-muted);">
+                <p>No topic analytics yet. Take quizzes to identify areas for improvement!</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Recent Notes Card -->
+    <div class="card" style="margin-bottom: 0;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+            <h2 class="card-title" style="margin-bottom: 0;">Recent Notes</h2>
+            <a href="{{ url_for('notes.new_note') }}" class="btn btn-sm btn-primary">+ New Note</a>
+        </div>
+
+        {% if recent_notes %}
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                {% for n in recent_notes %}
+                    <li style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 10px; border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                        <div>
+                            <a href="{{ url_for('notes.view_note', note_id=n.id) }}" style="font-weight: 600;">{{ n.title }}</a>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                {{ n.created_at.strftime('%b %d, %Y') }} &bull; {{ n.source_type | upper }}
+                            </div>
+                        </div>
+                        <a href="{{ url_for('notes.view_note', note_id=n.id) }}" class="btn btn-sm btn-secondary">Open</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div style="text-align: center; padding: 24px 10px; color: var(--text-muted);">
+                <p style="margin-bottom: 12px;">You haven't added any study notes yet.</p>
+                <a href="{{ url_for('notes.new_note') }}" class="btn btn-sm btn-primary">Create Your First Note</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+
+{% block title %}{{ note.title }} | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+    <!-- Breadcrumb -->
+    <div style="margin-bottom: 20px;">
+        <a href="{{ url_for('notes.index') }}" style="font-size: 0.9rem; color: var(--text-muted);">&larr; Back to all notes</a>
+    </div>
+
+    <!-- Header & Action Bar -->
+    <div class="card" style="padding: 24px; margin-bottom: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; flex-wrap: wrap;">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <span class="badge badge-info">{{ note.source_type | upper }}</span>
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">
+                        Created {{ note.created_at.strftime('%B %d, %Y at %H:%M') }}
+                    </span>
+                    {% if note.original_filename %}
+                        <span style="font-size: 0.85rem; color: var(--text-muted);">&bull; File: {{ note.original_filename }}</span>
+                    {% endif %}
+                </div>
+                <h1 style="font-size: 2.2rem; line-height: 1.2;">{{ note.title }}</h1>
+            </div>
+
+            <!-- Actions -->
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <a href="{{ url_for('notes.edit_note', note_id=note.id) }}" class="btn btn-sm btn-secondary">✏️ Edit</a>
+
+                <form method="POST" action="{{ url_for('notes.regenerate_note', note_id=note.id) }}" class="llm-trigger" style="display:inline;">
+                    {{ empty_form.hidden_tag() }}
+                    <button type="submit" class="btn btn-sm btn-secondary" data-loading-text="Re-analyzing...">🔄 Re-analyze</button>
+                </form>
+
+                <form method="POST" action="{{ url_for('notes.delete_note', note_id=note.id) }}" data-confirm="Are you sure you want to delete this note and all its quizzes and flashcards?" style="display:inline;">
+                    {{ empty_form.hidden_tag() }}
+                    <button type="submit" class="btn btn-sm btn-danger">🗑️ Delete</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Quick Study Launchers -->
+        <div style="display: flex; gap: 14px; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-color); flex-wrap: wrap;">
+            <!-- Quiz Generator -->
+            <form method="POST" action="{{ url_for('notes.create_quiz', note_id=note.id) }}" class="llm-trigger" style="display: flex; gap: 8px; align-items: center;">
+                {{ quiz_form.hidden_tag() }}
+                {{ quiz_form.count(class="form-control", style="width: 140px; padding: 7px 10px;") }}
+                <button type="submit" class="btn btn-primary" data-loading-text="Generating Quiz...">🎯 Generate Quiz</button>
+            </form>
+
+            <!-- Flashcard Generator -->
+            <form method="POST" action="{{ url_for('notes.create_flashcards', note_id=note.id) }}" class="llm-trigger" style="display: flex; gap: 8px; align-items: center;">
+                {{ flashcard_form.hidden_tag() }}
+                {{ flashcard_form.count(class="form-control", style="width: 130px; padding: 7px 10px;") }}
+                <button type="submit" class="btn btn-accent" data-loading-text="Generating Cards...">🗂️ Generate Flashcards</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- AI Summary Section -->
+    <div class="card" style="border-left: 4px solid var(--primary);">
+        <h2 class="card-title">
+            <span>✨ AI Executive Summary</span>
+        </h2>
+        {% if note.summary %}
+            <p style="font-size: 1.05rem; line-height: 1.7; color: #f1f5f9;">{{ note.summary }}</p>
+        {% else %}
+            <p style="color: var(--text-muted); font-style: italic;">No summary generated yet.</p>
+        {% endif %}
+
+        {% if note.keywords %}
+            <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--border-color);">
+                <div style="font-size: 0.85rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px;">
+                    Key Terminology & Topics
+                </div>
+                <div class="keywords-list">
+                    {% for kw in note.keywords %}
+                        <span class="keyword-pill">{{ kw }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Note Materials: Quizzes and Flashcards for this note -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+        <div class="card" style="margin-bottom: 0;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                <span>🎯 Quizzes ({{ note.quizzes | length }})</span>
+            </h3>
+            {% if note.quizzes %}
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                    {% for qz in note.quizzes %}
+                        <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border-color);">
+                            <div>
+                                <a href="{{ url_for('quiz.take_quiz', quiz_id=qz.id) }}" style="font-weight: 600;">{{ qz.title }}</a>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">
+                                    {{ qz.questions | length }} questions &bull; {{ qz.engine_used | upper }}
+                                </div>
+                            </div>
+                            <a href="{{ url_for('quiz.take_quiz', quiz_id=qz.id) }}" class="btn btn-sm btn-primary">Take &rarr;</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p style="font-size: 0.9rem; color: var(--text-muted);">No quizzes generated yet for this note.</p>
+            {% endif %}
+        </div>
+
+        <div class="card" style="margin-bottom: 0;">
+            <h3 style="font-size: 1.1rem; margin-bottom: 12px; display: flex; justify-content: space-between;">
+                <span>🗂️ Flashcards ({{ note.flashcards | length }})</span>
+                {% if note.flashcards %}
+                    <a href="{{ url_for('flashcards.review') }}" class="btn btn-sm btn-accent">Review Deck</a>
+                {% endif %}
+            </h3>
+            {% if note.flashcards %}
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 10px;">
+                    {{ note.flashcards | length }} cards created using spaced repetition algorithms.
+                </p>
+                <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                    {% for fc in note.flashcards[:8] %}
+                        <span class="badge badge-info">{{ fc.front }}</span>
+                    {% endfor %}
+                    {% if note.flashcards | length > 8 %}
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">+{{ note.flashcards | length - 8 }} more</span>
+                    {% endif %}
+                </div>
+            {% else %}
+                <p style="font-size: 0.9rem; color: var(--text-muted);">No flashcards generated yet for this note.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Full Note Content Body -->
+    <div class="card">
+        <h2 class="card-title">📖 Full Source Notes</h2>
+        <div style="white-space: pre-wrap; font-size: 1rem; line-height: 1.8; color: #cbd5e1; background: var(--bg-input); padding: 20px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); max-height: 600px; overflow-y: auto;">
+            {{ note.content }}
+        </div>
+    </div>
+</div>
+{% endblock %}

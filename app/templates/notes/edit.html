@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Note | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div style="max-width: 800px; margin: 0 auto;">
+    <div style="margin-bottom: 24px;">
+        <a href="{{ url_for('notes.view_note', note_id=note.id) }}" style="font-size: 0.9rem; color: var(--text-muted);">&larr; Back to note</a>
+        <h1 style="font-size: 2rem; margin-top: 8px;">Edit Note</h1>
+    </div>
+
+    <div class="card">
+        <form method="POST" action="{{ url_for('notes.edit_note', note_id=note.id) }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.title.label(class="form-label") }}
+                {{ form.title(class="form-control") }}
+                {% if form.title.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.title.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.content.label(class="form-label") }}
+                {{ form.content(id="note-content-input", class="form-control", style="min-height: 300px;") }}
+                <div style="display: flex; justify-content: space-between; margin-top: 4px;">
+                    <div class="form-hint">Must remain between 200 and 50,000 characters.</div>
+                    <span id="char-counter" style="font-size: 0.8rem; font-weight: 600;">{{ note.content | length }} characters</span>
+                </div>
+                {% if form.content.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.content.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <a href="{{ url_for('notes.view_note', note_id=note.id) }}" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

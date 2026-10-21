@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="card" style="text-align: center; max-width: 580px; margin: 60px auto; padding: 48px 24px;">
+    <div style="font-size: 4rem; margin-bottom: 12px;">🔍</div>
+    <h1 style="font-size: 2.2rem; margin-bottom: 12px;">404 - Page Not Found</h1>
+    <p style="color: var(--text-muted); font-size: 1.05rem; margin-bottom: 28px;">
+        The study resource or page you requested could not be found or belongs to another student.
+    </p>
+    <div style="display: flex; justify-content: center; gap: 14px;">
+        <a href="{{ url_for('home') }}" class="btn btn-primary">Return Home</a>
+        <a href="{{ url_for('notes.index') }}" class="btn btn-secondary">My Notes</a>
+    </div>
+</div>
+{% endblock %}

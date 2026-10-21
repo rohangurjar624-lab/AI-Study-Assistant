@@ -3,25 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AI Study Assistant - Instantly convert study notes and PDFs into summaries, keywords, practice quizzes, and spaced repetition flashcards.">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
     <title>{% block title %}AI Study Assistant{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
-    <nav class="navbar">
-        <a class="logo" href="/">⚡ AI Study Assistant</a>
-        <ul class="nav-links">
-            <li><a href="/">Home</a></li>
-        </ul>
-    </nav>
+    <header>
+        <nav class="navbar">
+            <a class="logo" href="/">
+                <span>⚡</span> AI Study Assistant
+            </a>
+
+            <button class="nav-toggle" aria-label="Toggle navigation menu">☰</button>
+
+            <ul class="nav-links">
+                {% if current_user.is_authenticated %}
+                    <li><a href="{{ url_for('dashboard.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ url_for('notes.index') }}">Notes</a></li>
+                    <li><a href="{{ url_for('quiz.list_quizzes') }}">Quizzes</a></li>
+                    <li>
+                        <a href="{{ url_for('flashcards.index') }}">
+                            Flashcards
+                        </a>
+                    </li>
+                    <li><a href="{{ url_for('profile') }}">Profile</a></li>
+                    <li>
+                        <form action="{{ url_for('auth.logout') }}" method="POST" style="display:inline;">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-secondary" style="cursor:pointer;">Sign Out</button>
+                        </form>
+                    </li>
+                {% else %}
+                    <li><a href="/">Overview</a></li>
+                    <li><a href="{{ url_for('auth.login') }}">Sign In</a></li>
+                    <li><a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-primary">Get Started</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="alert-container">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category != 'error' else 'danger' }}">
+                        <span>{{ message }}</span>
+                        <button type="button" class="alert-close" aria-label="Close message">&times;</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
     <main class="container">
         {% block content %}{% endblock %}
     </main>
 
     <footer class="footer">
-        <p>© 2026 AI Study Assistant</p>
+        <p>&copy; 2026 AI Study Assistant &bull; Built with Flask 3, PostgreSQL/SQLite, Anthropic API & SM-2 Spaced Repetition.</p>
     </footer>
 
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

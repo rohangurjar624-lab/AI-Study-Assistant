@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Account Settings | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div style="max-width: 720px; margin: 0 auto;">
+    <div style="margin-bottom: 24px;">
+        <h1 style="font-size: 2rem;">Account Settings</h1>
+        <p style="color: var(--text-muted); font-size: 0.95rem;">Manage your user profile and security preferences</p>
+    </div>
+
+    {% if is_demo %}
+        <div class="alert alert-warning">
+            <span><strong>Notice:</strong> You are signed in as the shared <strong>Demo Account</strong>. Modifying the password or deleting this account is disabled to preserve access for other evaluators.</span>
+        </div>
+    {% endif %}
+
+    <!-- Account Details Overview -->
+    <div class="card">
+        <h2 class="card-title">Profile Overview</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; font-size: 0.95rem;">
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Username</span>
+                <div style="font-weight: 600;">{{ current_user.username }}</div>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Email Address</span>
+                <div style="font-weight: 600;">{{ current_user.email }}</div>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Active Study Streak</span>
+                <div style="font-weight: 600; color: #f59e0b;">{{ current_user.streak_count }} day(s) 🔥</div>
+            </div>
+            <div>
+                <span style="color: var(--text-muted); font-size: 0.85rem;">Member Since</span>
+                <div style="font-weight: 600;">{{ current_user.created_at.strftime('%B %d, %Y') }}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Username -->
+    <div class="card">
+        <h2 class="card-title">Change Username</h2>
+        <form method="POST" action="{{ url_for('profile') }}">
+            {{ username_form.hidden_tag() }}
+            <input type="hidden" name="form_action" value="change_username">
+
+            <div class="form-group">
+                {{ username_form.username.label(class="form-label") }}
+                {{ username_form.username(class="form-control", value=current_user.username, disabled=is_demo) }}
+                {% if username_form.username.errors %}
+                    <ul class="form-errors">
+                        {% for error in username_form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-secondary" {% if is_demo %}disabled{% endif %}>Update Username</button>
+        </form>
+    </div>
+
+    <!-- Change Password -->
+    <div class="card">
+        <h2 class="card-title">Change Password</h2>
+        <form method="POST" action="{{ url_for('profile') }}">
+            {{ password_form.hidden_tag() }}
+            <input type="hidden" name="form_action" value="change_password">
+
+            <div class="form-group">
+                {{ password_form.current_password.label(class="form-label") }}
+                {{ password_form.current_password(class="form-control", placeholder="Current password", disabled=is_demo) }}
+                {% if password_form.current_password.errors %}
+                    <ul class="form-errors">
+                        {% for error in password_form.current_password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ password_form.new_password.label(class="form-label") }}
+                {{ password_form.new_password(class="form-control", placeholder="New password (min 8 characters)", disabled=is_demo) }}
+                {% if password_form.new_password.errors %}
+                    <ul class="form-errors">
+                        {% for error in password_form.new_password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ password_form.confirm_new_password.label(class="form-label") }}
+                {{ password_form.confirm_new_password(class="form-control", placeholder="Repeat new password", disabled=is_demo) }}
+                {% if password_form.confirm_new_password.errors %}
+                    <ul class="form-errors">
+                        {% for error in password_form.confirm_new_password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-secondary" {% if is_demo %}disabled{% endif %}>Update Password</button>
+        </form>
+    </div>
+
+    <!-- Danger Zone: Delete Account -->
+    <div class="card" style="border: 1px solid var(--danger);">
+        <h2 class="card-title" style="color: var(--danger);">⚠️ Danger Zone</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">
+            Permanently delete your account. This action will cascade and remove all your notes, summaries, generated quizzes, test attempts, and spaced repetition flashcards. This action cannot be undone.
+        </p>
+
+        <form method="POST" action="{{ url_for('profile') }}" data-confirm="Are you absolutely sure you want to permanently delete your account and all associated data?">
+            {{ delete_form.hidden_tag() }}
+            <input type="hidden" name="form_action" value="delete_account">
+
+            <div class="form-group">
+                <label class="form-label">Type your username (<code>{{ current_user.username }}</code>) to confirm:</label>
+                {{ delete_form.confirm_username(class="form-control", placeholder=current_user.username, disabled=is_demo) }}
+                {% if delete_form.confirm_username.errors %}
+                    <ul class="form-errors">
+                        {% for error in delete_form.confirm_username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-danger" {% if is_demo %}disabled{% endif %}>
+                Permanently Delete My Account
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

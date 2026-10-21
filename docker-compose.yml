@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: study_assistant_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: study_user
+      POSTGRES_PASSWORD: study_secret_password
+      POSTGRES_DB: study_assistant_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U study_user -d study_assistant_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  web:
+    build: .
+    container_name: study_assistant_web
+    restart: always
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5000:5000"
+    environment:
+      FLASK_ENV: production
+      PORT: 5000
+      SECRET_KEY: docker-production-super-secret-key-study-assistant-99
+      DATABASE_URL: postgresql://study_user:study_secret_password@db:5432/study_assistant_db
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-claude-3-5-sonnet-20241022}
+      SESSION_COOKIE_SECURE: "false"
+
+volumes:
+  postgres_data:

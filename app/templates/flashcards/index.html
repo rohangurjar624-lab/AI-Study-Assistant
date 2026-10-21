@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Flashcards & Spaced Repetition | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div style="max-width: 960px; margin: 0 auto;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <div>
+            <h1 style="font-size: 2rem;">Spaced Repetition Flashcards</h1>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Powered by the SuperMemo SM-2 algorithm for long-term retention</p>
+        </div>
+
+        {% if due_cards | length > 0 %}
+            <a href="{{ url_for('flashcards.review') }}" class="btn btn-primary btn-lg">
+                🔥 Review Due Cards ({{ due_cards | length }})
+            </a>
+        {% else %}
+            <a href="{{ url_for('flashcards.review') }}" class="btn btn-secondary btn-lg">
+                ✓ All Cards Caught Up
+            </a>
+        {% endif %}
+    </div>
+
+    <!-- Stats Banner -->
+    <div class="stats-grid" style="margin-bottom: 24px;">
+        <div class="stat-card">
+            <div class="stat-value">{{ due_cards | length }}</div>
+            <div class="stat-label">Cards Due Today</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ all_cards | length }}</div>
+            <div class="stat-label">Total Flashcards</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ notes | length }}</div>
+            <div class="stat-label">Study Decks</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ current_user.streak_count }} 🔥</div>
+            <div class="stat-label">Study Streak</div>
+        </div>
+    </div>
+
+    <!-- Flashcard Inventory -->
+    <div class="card">
+        <h2 class="card-title">All Flashcard Items</h2>
+        {% if all_cards %}
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: left;">
+                    <thead>
+                        <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-muted);">
+                            <th style="padding: 10px 12px;">Front (Concept)</th>
+                            <th style="padding: 10px 12px;">Back (Definition / Context)</th>
+                            <th style="padding: 10px 12px;">Interval</th>
+                            <th style="padding: 10px 12px;">Ease</th>
+                            <th style="padding: 10px 12px;">Due Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for card in all_cards %}
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 12px; font-weight: 600; color: var(--primary);">
+                                    {{ card.front }}
+                                </td>
+                                <td style="padding: 12px; max-width: 380px; color: #cbd5e1;">
+                                    {{ card.back }}
+                                </td>
+                                <td style="padding: 12px; color: var(--text-muted);">
+                                    {{ card.interval_days }}d
+                                </td>
+                                <td style="padding: 12px; color: var(--text-muted);">
+                                    {{ card.ease_factor }}
+                                </td>
+                                <td style="padding: 12px;">
+                                    {% if card.due_date <= today %}
+                                        <span class="badge badge-danger">Due Today</span>
+                                    {% else %}
+                                        <span class="badge badge-info">{{ card.due_date.strftime('%b %d') }}</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div style="text-align: center; padding: 30px 10px;">
+                <p style="color: var(--text-muted); margin-bottom: 16px;">You haven't generated any flashcards yet.</p>
+                <a href="{{ url_for('notes.index') }}" class="btn btn-primary">Go to Notes & Generate Flashcards</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="card">
+        <div class="auth-header">
+            <h2>Create Account</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Start converting your study materials into mastery</p>
+        </div>
+
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                {{ form.username.label(class="form-label") }}
+                {{ form.username(class="form-control", placeholder="e.g. alex_study", autofocus=True) }}
+                <div class="form-hint">3 to 50 characters, letters, numbers, underscores and dashes.</div>
+                {% if form.username.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.username.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.email.label(class="form-label") }}
+                {{ form.email(class="form-control", placeholder="name@example.com") }}
+                {% if form.email.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.email.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.password.label(class="form-label") }}
+                {{ form.password(class="form-control", placeholder="At least 8 characters") }}
+                {% if form.password.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.confirm_password.label(class="form-label") }}
+                {{ form.confirm_password(class="form-control", placeholder="Repeat your password") }}
+                {% if form.confirm_password.errors %}
+                    <ul class="form-errors">
+                        {% for error in form.confirm_password.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 8px;">Sign Up</button>
+        </form>
+
+        <p style="text-align: center; margin-top: 20px; font-size: 0.9rem; color: var(--text-muted);">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

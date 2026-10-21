@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Results | AI Study Assistant{% endblock %}
+
+{% block content %}
+<div style="max-width: 820px; margin: 0 auto;">
+    <!-- Result Banner -->
+    <div class="result-banner">
+        <div style="font-size: 0.95rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); margin-bottom: 8px;">
+            Quiz Attempt Completed
+        </div>
+        <div class="result-score-large">
+            {{ attempt.score }} / {{ attempt.total }}
+        </div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: {% if attempt.percentage >= 70 %}#10b981{% elif attempt.percentage >= 50 %}#f59e0b{% else %}#ef4444{% endif %}; margin-bottom: 12px;">
+            {{ attempt.percentage }}%
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 20px;">
+            Completed on {{ attempt.taken_at.strftime('%B %d, %Y at %H:%M') }}
+            {% if attempt.duration_seconds %}
+                &bull; Time taken: {{ attempt.duration_seconds }}s
+            {% endif %}
+        </p>
+
+        <div style="display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;">
+            <a href="{{ url_for('quiz.take_quiz', quiz_id=attempt.quiz_id) }}" class="btn btn-primary">🔄 Retake Quiz</a>
+            <a href="{{ url_for('notes.view_note', note_id=attempt.quiz.note_id) }}" class="btn btn-secondary">&larr; Back to Note</a>
+            <a href="{{ url_for('quiz.list_quizzes') }}" class="btn btn-secondary">Quiz History</a>
+        </div>
+    </div>
+
+    <h2 style="font-size: 1.4rem; margin-bottom: 18px;">Question Breakdown & Explanations</h2>
+
+    <!-- Question Answers Breakdown -->
+    {% for ans in answers %}
+        <div class="result-question-card {% if ans.is_correct %}correct{% else %}incorrect{% endif %}">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted);">QUESTION {{ loop.index }}</span>
+                {% if ans.is_correct %}
+                    <span class="badge badge-success">✓ Correct (+1)</span>
+                {% else %}
+                    <span class="badge badge-danger">✗ Incorrect</span>
+                {% endif %}
+            </div>
+
+            <div style="font-size: 1.05rem; font-weight: 600; margin-bottom: 14px;">
+                {{ ans.question.text }}
+            </div>
+
+            <div style="background: var(--bg-input); padding: 12px 16px; border-radius: var(--radius-sm); border: 1px solid var(--border-color); margin-bottom: 12px; font-size: 0.95rem;">
+                <div style="margin-bottom: 6px;">
+                    <span style="color: var(--text-muted);">Your Answer:</span>
+                    {% if ans.selected_index is not none and 0 <= ans.selected_index < ans.question.options | length %}
+                        <strong style="color: {% if ans.is_correct %}#10b981{% else %}#ef4444{% endif %};">
+                            {{ ans.question.options[ans.selected_index] }}
+                        </strong>
+                    {% else %}
+                        <strong style="color: #ef4444;">(No answer selected)</strong>
+                    {% endif %}
+                </div>
+
+                {% if not ans.is_correct %}
+                    <div>
+                        <span style="color: var(--text-muted);">Correct Answer:</span>
+                        <strong style="color: #10b981;">
+                            {{ ans.question.options[ans.question.correct_index] }}
+                        </strong>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div style="font-size: 0.9rem; color: #cbd5e1; background: rgba(255, 255, 255, 0.03); padding: 10px 14px; border-radius: var(--radius-sm); border-left: 3px solid var(--accent-blue);">
+                <strong>Explanation:</strong> {{ ans.question.explanation }}
+            </div>
+        </div>
+    {% endfor %}
+
+    <div style="text-align: center; margin: 30px 0 50px;">
+        <a href="{{ url_for('dashboard.dashboard') }}" class="btn btn-secondary">&larr; Return to Dashboard</a>
+    </div>
+</div>
+{% endblock %}

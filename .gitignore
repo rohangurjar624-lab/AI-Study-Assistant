@@ -1,6 +1,34 @@
+# Python virtual environment
 venv/
-__pycache__/
-*.pyc
+env/
+ENV/
+.venv/
+
+# Environment secrets and credentials
 .env
-instance/
+.env.local
+
+# Databases & SQLite
 *.db
+*.sqlite3
+instance/
+app.db
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing and coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.ruff_cache/
+
+# IDE & OS files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp

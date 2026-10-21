@@ -1,8 +1,77 @@
 {% extends "base.html" %}
 
-{% block title %}Home | AI Study Assistant{% endblock %}
+{% block title %}AI Study Assistant - Master Any Subject Faster{% endblock %}
 
 {% block content %}
-    <h1>Take the helm of what's next.</h1>
-    <p>Paste your notes and get a summary, keywords and a practice quiz in seconds.</p>
+<section class="hero">
+    <h1>Transform Your Study Notes into Active Mastery.</h1>
+    <p>Upload lecture slides, research PDFs, or pasted notes. Get AI-generated summaries, key concepts, interactive practice quizzes, and spaced-repetition flashcards in seconds.</p>
+    <div class="hero-actions">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Start Studying Free &rarr;</a>
+        <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">Sign In with Demo</a>
+    </div>
+
+    <div class="demo-credentials-box" style="max-width: 500px; margin: 24px auto 0;">
+        <strong>🚀 Quick Demo Access:</strong><br>
+        Email: <code>demo@example.com</code> &bull; Password: <code>DemoPass123!</code><br>
+        <span style="color: #94a3b8; font-size: 0.8rem;">Preloaded with biology notes, CS notes, quizzes, and spaced-repetition cards!</span>
+    </div>
+</section>
+
+<section class="how-it-works">
+    <h2 style="font-size: 1.8rem; margin-bottom: 8px;">How It Works</h2>
+    <p style="color: var(--text-muted);">From raw reading materials to proven active recall in three simple steps.</p>
+
+    <div class="steps-grid">
+        <div class="step-item">
+            <div class="step-num">1</div>
+            <h3 style="font-size: 1.15rem; margin-bottom: 6px;">Input Your Notes</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Paste text or upload .txt / text-based .pdf documents up to 5 MB directly into the browser.</p>
+        </div>
+        <div class="step-item">
+            <div class="step-num">2</div>
+            <h3 style="font-size: 1.15rem; margin-bottom: 6px;">AI Analysis & Synthesis</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Extract key definitions, concise summaries, keywords, and curriculum-aligned MCQ questions.</p>
+        </div>
+        <div class="step-item">
+            <div class="step-num">3</div>
+            <h3 style="font-size: 1.15rem; margin-bottom: 6px;">Active Recall & SRS</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Take server-scored quizzes, review flashcards on an SM-2 schedule, and track streak analytics.</p>
+        </div>
+    </div>
+</section>
+
+<section class="features-grid">
+    <div class="feature-card">
+        <div class="feature-icon">📑</div>
+        <h3>Document Ingestion</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">Instant extraction from plain text and searchable PDFs. Scanned document detection guards against empty inputs.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🧠</div>
+        <h3>Dual Engine Intelligence</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">Powered by Claude Anthropic LLM with automatic silent fallback to a deterministic offline TF-IDF NLP engine.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Cheat-Proof Quizzes</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">Answers and explanations never appear in the client HTML or DOM. Scoring occurs exclusively on the secure server.</p>
+    </div>
+
+    <div class="feature-card">
+        <div class="feature-icon">🔄</div>
+        <h3>SM-2 Spaced Repetition</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 6px;">Algorithm-driven review schedules that calculate intervals and ease factors so you remember concepts long-term.</p>
+    </div>
+</section>
+
+<section class="card" style="text-align: center; padding: 40px 20px; margin-top: 30px;">
+    <h2 style="font-size: 1.8rem; margin-bottom: 12px;">Ready to elevate your learning?</h2>
+    <p style="color: var(--text-muted); margin-bottom: 24px; max-width: 580px; margin-left: auto; margin-right: auto;">
+        Join students worldwide using AI Study Assistant to turn passive reading into active, lifelong comprehension.
+    </p>
+    <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Create Free Account</a>
+</section>
 {% endblock %}
